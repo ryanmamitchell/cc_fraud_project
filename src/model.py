@@ -6,6 +6,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB
 from xgboost import XGBClassifier
 from sklearn import model_selection
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import f_classif
 from sklearn.utils import class_weight
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
@@ -21,7 +23,18 @@ X = data_x
 X.drop('Class', axis=1, inplace=True)
 y = data_y['Class']
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.80, random_state=6969)
+
+# Feature Selection
+
+best_feat = SelectKBest(score_func = f_classif, k=10)
+fit = best_feat.fit(X,y)
+
+cols_idxs = best_feat.get_support(indices=True)
+X_10 = X.iloc[:,cols_idxs]
+
+
+
+X_train, X_test, y_train, y_test = train_test_split(X_10, y, test_size=.80, random_state=6969)
 
 
 # Function for model training
@@ -75,3 +88,4 @@ def model_train(X_train: pd.DataFrame, y_train: pd.DataFrame,
     return final
 
 model_train(X_train, y_train, X_test, y_test)
+
